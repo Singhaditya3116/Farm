@@ -26,7 +26,10 @@ const url =require("url");
 //////////////////////////////
 //SERVER
 
-const server=http.createServer((req,res)=>{
+const data=fs.readFileSync(`${__dirname}/dev-data/data.json`,"utf-8")       //Tis code run only once i.e.synchronous
+const dataObj = JSON.parse(data)  //convert JSON to JS object
+
+const server=http.createServer((req,res)=>{ //This is the code which run always
 
     const pathName = req.url;
     if(pathName =="/" || pathName == "/overview")
@@ -35,11 +38,18 @@ const server=http.createServer((req,res)=>{
     }else if(pathName == "/product"){
         res.end("This is from product");
     }
-    else
+    else if(pathName == "/api")
+    {
+        res.writeHead(200,{
+            'Content-type':'application/json'
+        });
+
+        res.end(data);
+    }else
     {
         res.writeHead(404,{                                      //Always send header before
-            'Content-type':'text/html'
-            'my-own-header':'hello world'
+            'Content-type':'text/html',
+            'my-own-header':'helllo world'
         });
         res.end("<h1>Not such page available</h1>");
     }
