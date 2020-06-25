@@ -43,7 +43,7 @@ const replaceTemplate = (temp,product)=>{
 }
 
 
-const tempOverview = fs.readFileSync(`${__dirname}/templates/template-overview.html`,"utf-8");  //overview page
+const tempOverview = fs.readFileSync(`${__dirname}/templates/template-overview.html`,"utf-8");  //overview page   //TOPLEVEL CODE ONLY RUNS ONETIME
 const tempProduct = fs.readFileSync(`${__dirname}/templates/template-product.html`,"utf-8");       // product page
 const tempCard = fs.readFileSync(`${__dirname}/templates/template-card.html`,"utf-8");          //card page
 
@@ -52,26 +52,30 @@ const dataObj = JSON.parse(data)  //convert JSON to JS object
 
 const server=http.createServer((req,res)=>{ //This is the code which run always
 
-    const pathName = req.url;
+    const {query,pathname} =url.parse(req.url,true);  //req.url is the URL with query , pathname is without query
 
     //Overview page
-    if(pathName =="/" || pathName == "/overview")
+    if(pathname =="/" || pathname == "/overview")
     {
         res.writeHead(200,{'Content-type':'text/html' })
 
         const cardHtml = dataObj.map((element)=>{return replaceTemplate(tempCard,element);}).join("");
-        console.log(cardHtml);
+        //console.log(cardHtml);
 
         let overview = tempOverview.replace(/{%CARD%}/g,cardHtml);
         res.end(overview);
 
     //Product Page
-    }else if(pathName == "/product"){
-        res.end("This is from product");
+    }else if(pathname == "/product"){
+        let currProduct=dataObj[query.id];
+
+        let productHtml = replaceTemplate(tempProduct,currProduct);
+
+        res.end(productHtml);
 
     //Api Page
     }
-    else if(pathName == "/api")
+    else if(pathname == "/api")
     {
         res.writeHead(200,{
             'Content-type':'application/json'
